@@ -2243,7 +2243,16 @@ tr.st-absent td:not(:last-child) { color: var(--muted); }
     if (info.noPart.length && (ui.tab === 'weigh' || ui.tab === 'grids')) {
       body = '<div class="notice bad"><b>Не попали ни в одну часть: ' + info.noPart.length + '.</b> ' + info.noPart.map((p) => h(GL.fullName(p)) + ' (' + GL.formatBirth(p.birthDate) + ')').join(', ') + '. Укажите им часть вручную или поправьте годы частей на вкладке «Турнир».</div>' + body;
     }
+    // Полоса вкладок на телефоне прокручивается вбок: после перерисовки возвращаем её положение и показываем текущую вкладку.
+    const oldNav = app.querySelector('nav.tabs');
+    const navLeft = oldNav ? oldNav.scrollLeft : 0;
     app.innerHTML = renderTop(info) + '<main class="wrap">' + body + '</main>';
+    const nav = app.querySelector('nav.tabs');
+    if (nav) {
+      nav.scrollLeft = navLeft;
+      const cur = nav.querySelector('[aria-current]');
+      if (cur && (cur.offsetLeft < nav.scrollLeft || cur.offsetLeft + cur.offsetWidth > nav.scrollLeft + nav.clientWidth)) nav.scrollLeft = cur.offsetLeft - 16;
+    }
     if (draftMode === ui.draftMode) {
       Object.keys(draft).forEach((id) => { const el = document.getElementById(id); if (el) el.value = draft[id]; });
       if (draft['f-birth'] !== undefined) updatePartHint();
